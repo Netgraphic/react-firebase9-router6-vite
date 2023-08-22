@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 import { firebaseErrors } from "../utilities/FirebaseErrors";
 
 import FormError from "../components/FormError";
+import Title from "../components/Title";
 import FormInputText from "../components/FormInputText";
+import Button from "../components/Button";
 
 import { formValidate } from "../utilities/formValidate";
 
@@ -26,18 +28,14 @@ const Login = () => {
       await loginUser(email, password);
       navigate("/");
     } catch (error) {
-      console.log(error.code);
-
-      setError("firebase", {
-        message: firebaseErrors(error.code),
-      });
+      const { code, message } = firebaseErrors(error.code);
+      setError(code, { message });
     }
   };
 
   return (
     <>
-      <h1>Login</h1>
-      <FormError error={errors.firebase} />
+      <Title text="Login" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormInputText
           type="email"
@@ -46,6 +44,8 @@ const Login = () => {
             required,
             pattern: patternEmail,
           })}
+          label="Ingresa tu correo"
+          error={errors.email}
         >
           <FormError error={errors.email} />
         </FormInputText>
@@ -57,11 +57,13 @@ const Login = () => {
             minLength,
             validate: validateTrim,
           })}
+          label="Ingresa tu password"
+          error={errors.password}
         >
           <FormError error={errors.password} />
-        </FormInputText>  
+        </FormInputText>
 
-        <button type="submit">Login</button>
+        <Button text="Login" type="submit" />
       </form>
     </>
   );

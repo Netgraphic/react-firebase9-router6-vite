@@ -5,14 +5,17 @@ import { useForm } from "react-hook-form";
 import { firebaseErrors } from "../utilities/FirebaseErrors";
 
 import FormError from "../components/FormError";
+import Title from "../components/Title";
 import FormInputText from "../components/FormInputText";
+import Button from "../components/Button";
 
 import { formValidate } from "../utilities/formValidate";
 
 const Register = () => {
   const navigate = useNavigate();
   const { registerUser } = useContext(UserContext);
-  const { required, patternEmail, minLength, validateTrim, validateEquals } = formValidate();
+  const { required, patternEmail, setMinLength, validateTrim, validateEquals } =
+    formValidate();
 
   const {
     register,
@@ -27,18 +30,14 @@ const Register = () => {
       await registerUser(email, password);
       navigate("/");
     } catch (error) {
-      console.log(error.code);
-
-      setError("firebase", {
-        message: firebaseErrors(error.code),
-      });
+      const { code, message } = firebaseErrors(error.code);
+      setError(code, { message });
     }
   };
 
   return (
     <>
-      <h1>Register</h1>
-      <FormError error={errors.firebase} />
+      <Title text="Register" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormInputText
           type="email"
@@ -47,6 +46,8 @@ const Register = () => {
             required,
             pattern: patternEmail,
           })}
+          label="Ingresa tu correo"
+          error={errors.email}
         >
           <FormError error={errors.email} />
         </FormInputText>
@@ -55,24 +56,28 @@ const Register = () => {
           type="password"
           placeholder="Ingrese password"
           {...register("password", {
-            minLength,
+            minLength: setMinLength(6),
             validate: validateTrim,
           })}
+          label="Ingresa tu password"
+          error={errors.password}
         >
           <FormError error={errors.password} />
-        </FormInputText>     
+        </FormInputText>
 
         <FormInputText
           type="password"
           placeholder="Ingrese password"
           {...register("repassword", {
-            validate: validateEquals(getValues),
+            validate: validateEquals(getValues("password")),
           })}
+          label="Repite tu password"
+          error={errors.repassword}
         >
           <FormError error={errors.repassword} />
         </FormInputText>
-        
-        <button type="submit">Register</button>
+
+        <Button text="Register" type="submit" />
       </form>
     </>
   );
